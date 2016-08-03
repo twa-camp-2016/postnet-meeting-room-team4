@@ -2,7 +2,7 @@
  * Created by amber on 16-8-2.
  */
 'use strict';
-let {judgeZipcodesLegality} =require("../src/conver-zipBarcode.js");
+let {judgeZipcodesLegality, addCheckcode, matchedBarcodes,converZipcodeBarcodes} =require("../src/conver-zipBarcode.js");
 
 describe('judgeZipcodesLegality', function () {
 
@@ -201,48 +201,59 @@ describe('judgeZipcodesLegality', function () {
 });
 
 
+
 describe('addCheckcode', function () {
     it('should ensure length of zipcode is 5', function () {
         let inputs = '12345';
-        let updateZipcodes = addCheckcode(zipcodesLegality);
-        let expected = [123455];
-        expect(zipcodesLegality).toEqual(expected);
-    });
-    it('should ensure length of zipcode is 9', function () {
-        let inputs = '123456789';
-        let updateZipcodes = addCheckcode(zipcodesLegality);
-        let expected = [1234567895];
-        expect(zipcodesLegality).toEqual(expected);
-
-    });
-    it('should ensure length of zipcode is 10', function () {
-        let inputs = '12345-6789';
-        let updateZipcodes = addCheckcode(zipcodesLegality);
-        let expected = [1234567895];
-        expect(zipcodesLegality).toEqual(expected);
-
+        let updateZipcodes = addCheckcode(inputs);
+        let expected = '123455';
+        expect(updateZipcodes).toEqual(expected);
     });
 });
 
-describe('addCheckcode', function () {
+describe('matchedBarcodes', function () {
     it('should ensure length of zipcode is 5', function () {
-        let updateZipcodes = [123455];
-        let barcodes = matchedBarcodes(updateZipcodes, zipcodesLegalitys);
-      // let expected = [ |||:::', ':::||', '::|:|', '::||:', ':|::|' |];
-        expect(zipcodesLegality).toEqual(expected);
+        let updateZipcodes = '957135';
+        let barcodes = matchedBarcodes(updateZipcodes);
+        let expected = '||:|:::|:|:|:::|:::||::||::|:|:|';
+        expect(barcodes).toEqual(expected);
     });
-    it('should ensure length of zipcode is 9', function () {
-        let inputs = [1234567895];
-        let barcodes = matchedBarcodes(updateZipcodes, zipcodesLegalitys);
-     // let expected = [];
-        expect(zipcodesLegality).toEqual(expected);
-
+    it('should ensure length of zipcode is 5', function () {
+        let updateZipcodes = '450512346';
+        let barcodes = matchedBarcodes(updateZipcodes);
+        let expected = '|:|::|:|:|:||::::|:|::::||::|:|::||::|::|:||::|';
+        expect(barcodes).toEqual(expected);
     });
     it('should ensure length of zipcode is 10', function () {
-        let inputs = [1234567895];
-        let barcodes = matchedBarcodes(updateZipcodes, zipcodesLegalitys);
-        // let expected =[];
-        expect(zipcodesLegality).toEqual(expected);
+        let updateZipcodes = '450512346';
+        let barcodes = matchedBarcodes(updateZipcodes);
+        let expected = '|:|::|:|:|:||::::|:|::::||::|:|::||::|::|:||::|';
+        expect(barcodes).toEqual(expected);
 
     });
 });
+
+describe('converZipcodeBarcodes', function () {
+    it('should ensure length of zipcode is 5', function () {
+        let inputs = '95713';
+        let barcodes = converZipcodeBarcodes(inputs);
+        let expected = '||:|:::|:|:|:::|:::||::||::|:|:|';
+        expect(barcodes).toEqual(expected);
+    });
+    it('should ensure length of zipcode is 9', function () {
+        let inputs = '45051234';
+        let barcodes = converZipcodeBarcodes(inputs);
+        let expected = '|:|::|:|:|:||::::|:|::::||::|:|::||::|::|:||::|';
+        expect(barcodes).toEqual(expected);
+
+    });
+    it('should ensure length of zipcode is 10', function () {
+        let inputs = '45056-1234';
+        let barcodes = converZipcodeBarcodes(inputs);
+        let expected = '|:|::|:|:|:||::::|:|::||:::::||::|:|::||::|::|:||::|';
+        expect(barcodes).toEqual(expected);
+
+    });
+});
+
+
