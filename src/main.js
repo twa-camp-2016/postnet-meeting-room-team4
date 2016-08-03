@@ -2,56 +2,34 @@
 let _ = require('lodash');
 function checkZipCode(inputs) {
     let length = inputs.length;
-    let array = _.split(inputs, ('')).map(x=>parseInt(x));
-    let isNumber = _.some(array, (x)=>_.isNaN(x));
-    let tenArr = _.split(inputs, (''));
-    let newArr = _.filter(tenArr, (x, index)=>index !== 5).map(x=>parseInt(x));
-    let isNumbers = _.some(newArr, (x)=>_.isNaN(x));
-    let arrays = _.filter(tenArr, (x, index)=>index === 5);
+    let array = _.chain(inputs).split(('')).map(x=>parseInt(x)).value();
+    let containNaN = _.some(array, (x)=>_.isNaN(x));
+    let arrayOfTen = _.split(inputs, (''));
+    let newArray = _.filter(arrayOfTen, (x, index)=>index !== 5).map(x=>parseInt(x));
+    let containsNaN = _.some(newArray, (x)=>_.isNaN(x));
+    let arrays = _.filter(arrayOfTen, (x, index)=>index === 5);
     let isTrue = arrays[0] === '-';
-    if (length === 5 && isNumber === false) {
-        return true;
-    }
-    if (length === 9 && isNumber === false) {
-        return true;
-    }
-    if (length === 10 && isNumbers === false && isTrue) {
-        return true;
-    }
+    if (length === 5 && containNaN === false) return true;
+    if (length === 9 && containNaN === false) return true;
+    if (length === 10 && containsNaN === false && isTrue) return true;
     return false;
 }
 
 function getZipCheckCode(inputs) {
     let length = inputs.length;
-    let isCorrectCode = checkZipCode(inputs);
-    if ((isCorrectCode && length === 5) || (isCorrectCode && length === 9)) {
-        let codeArray = _.chain(inputs)
+    let checkedCode = checkZipCode(inputs);
+
+    if (checkedCode && [5, 9, 10].includes(length)) {
+        let filteredArray = _.chain(inputs)
             .split('')
+            .filter(x=>x !== '-')
             .map(x=>parseInt(x))
             .value();
-        let codeSum = _.sum(codeArray);
+        let codeSum = _.sum(filteredArray);
         let checkCode = 10 - codeSum % 10;
-        if (checkCode === 10) {
-            codeArray.push(0);
-        } else {
-            codeArray.push(checkCode);
-        }
-        return codeArray.join('');
-    }
-    if (isCorrectCode && length === 10) {
-        let codeArr = _.chain(inputs)
-            .split('')
-            .filter((x, index)=>index !== 5)
-            .map(x=>parseInt(x))
-            .value();
-        let codeSums = _.sum(codeArr);
-        let checkCD = 10 - codeSums % 10;
-        if (checkCD === 10) {
-            codeArr.push(0);
-        } else {
-            codeArr.push(checkCD);
-        }
-        return codeArr.join('');
+        checkCode === 10 ? filteredArray.push(0) : filteredArray.push(checkCode);
+        console.log(filteredArray.join(''));
+        return filteredArray.join('');
     }
 }
 function _getBarcodeByNo(array, no) {
@@ -88,10 +66,88 @@ function shiftZipCode(containCheckCode, codeItems) {
     return barCode;
 }
 
+function checkBarCode(inputs) {
+    let rightStartAndEnd = _.startsWith(inputs, '|') && _.endsWith(inputs, '|');
+    let length = inputs.length;
+    let a = _.split(inputs, (''));
+    _.pullAt(a, 0, length - 1);
+    let result = _.chain(a)
+        .chunk(5)
+        .value();
+    let isCorrect = _.every(result, x=>_.filter(x, e=>e === '|').length === 2 && _.filter(x, e=>e === ':').length === 3);
+    let q = (a.length / 5 === 6 || a.length / 5 === 10) && a.length % 5 === 0 && rightStartAndEnd && isCorrect ? true : false;
+    return q;
+}
+
+function _getBarcodeByBarCode(array, barcode) {
+    return array.find((element) => element.barcode === barcode);
+}
+
+function shiftBarCode(inputs, codeItems) {
+    let result = [];
+    let length = inputs.length;
+    let barCodeArray = _.split(inputs, (''));
+    _.pullAt(barCodeArray, 0, length - 1);
+    let correctInput = checkBarCode(inputs);
+    if (correctInput) {
+        let stringArray = _.chain(barCodeArray)
+            .chunk(5)
+            .map(x=>x.join(''))
+            .value();
+
+        for (let string of stringArray) {
+            let found = _getBarcodeByBarCode(codeItems, string);
+            if (found) {
+                result.push(found.no);
+            }
+        }
+        return result.join('');
+    }
+
+}
+
+function inspectCheckCode(shiftedCode) {
+    let codeSum = _.chain(shiftedCode)
+        .split('')
+        .map(x=>parseInt(x))
+        .sum();
+    let result = codeSum % 10 === 0 ? true : false;
+    return result;
+
+}
+
+function removeCheckCode(shiftedCode) {
+    let length = shiftedCode.length;
+    let isCorrectCD = inspectCheckCode(shiftedCode);
+    if (isCorrectCD) {
+        let result = shiftedCode.substring(0, length - 1);
+        return result;
+    }
+
+}
+
+function jsMain(inputs) {
+    let codeItems = barCodeItems();
+    let shiftedCode = shiftBarCode(inputs, codeItems);
+    let result = removeCheckCode(shiftedCode);
+    return result;
+}
+function mainJs(inputs) {
+    let containCheckCode = getZipCheckCode(inputs);
+    let codeItems = barCodeItems();
+    let result = shiftZipCode(containCheckCode, codeItems);
+    return result;
+}
 
 module.exports = {
     checkZipCode: checkZipCode,
     getZipCheckCode: getZipCheckCode,
     barCodeItems: barCodeItems,
-    shiftZipCode: shiftZipCode
+    shiftZipCode: shiftZipCode,
+    mainJs: mainJs,
+    checkBarCode: checkBarCode,
+    shiftBarCode: shiftBarCode,
+    inspectCheckCode: inspectCheckCode,
+    removeCheckCode: removeCheckCode,
+    jsMain: jsMain
 }
