@@ -150,3 +150,4 @@ When you input '2' and press enter
 Any time when you input wrong, you would get these output:
     
     Please give right input
+hello
