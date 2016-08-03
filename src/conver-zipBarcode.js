@@ -5,47 +5,39 @@
 let _ = require('lodash');
 function converZipcodeBarcodes(inputs) {
     let zipcodesLegality = judgeZipcodesLegality(inputs);
-    let updateZipcodes = addCheckcode(zipcodesLegality);
-    let barcodes = matchedBarcodes(updateZipcodes, zipcodesLegalitys);
+    let updateZipcodes = addCheckcode(inputs);
+    let barcodes = matchedBarcodes(updateZipcodes);
     return barcodes;
 }
-
 function judgeZipcodesLegality(inputs) {
-
-    let patten = /^\d{5}$|^\d{9}$|^\d{5}$+^\d{4}$/;
+    let patten = /^\d{5}$|^\d{9}$|^\d{5}-\d{4}$/;
     if (patten.test(inputs)) {
         return 1;
     } else {
         return 0;
     }
 }
-function addCheckcode(zipcodesLegality) {
-    let zipcodesLegalitys = zipcodesLegality.split('-');
-    let zipcodesLegalityandElementSum = _(zipcodesLegalitys).map(element=>element
-        .parseFloat(zipcodesLegality))
+function addCheckcode(inputs) {
+    let sum = _(inputs).split('')
+        .filter(x=>x !== '-')
+        .map(x=>_.parseInt(x))
         .sum();
-    let checkCode = zipcodesLegalityandElementSum % 10;
+    let checkCode = sum % 10;
     return checkCode === 0 ? checkCode : 10 - checkCode;
-    let updateZipcodes = zipcodesLegalitys + checkCode;
-    // return updateZipcodes;
-
+    let updateZipcodes = inputs + toString(checkCode);
+    return updateZipcodes;
 }
-function matchedBarcodes(updateZipcodes, zipcodesLegalitys) {
+function matchedBarcodes(updateZipcodes) {
     let allBarcodes = ['||:::', ':::||', '::|:|', '::||:', ':|::|', ':|:|:', ':||::', '|:::|', '|::|:', '|:|::'];
-    let barcodeParts = '|';
-    let barcodes = zipcodesLegalitys.map(element=> {
-        return zipcodesLegalitys = allBarcodes[zipcodesLegalitys];
-    })
-        .join((''));
-    barcodes += allBarcodes[updateZipcodes] + '|';
+    let partBarcodes = _(updateZipcodes).map(element=> partBarcodes = allBarcodes[element]);
+    let partBarcode = partBarcodes.join((''));
+    let barcodes = '|' + partBarcode + '|';
     return barcodes;
 }
 
 
-
-
 module.exports = {
     judgeZipcodesLegality: judgeZipcodesLegality,
-    addCheckcode:addCheckcode,
-    matchedBarcodes:matchedBarcodes
+    addCheckcode: addCheckcode,
+    matchedBarcodes: matchedBarcodes
 };
