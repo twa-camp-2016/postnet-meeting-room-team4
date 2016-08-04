@@ -1,216 +1,145 @@
-let {getFormattedZipcode,
-    checkZipcodeLength,
-    checkLegalMarkCount,
-    checkLegalMarkPosition,
-    checkIllegalMark,
+let {
+    checkZipcode,
+    getFormattedZipcode,
     convertToBarcode,
     convertZipcodeToBarcode,
-    checkBarcodeLength,
-    checkFrame,
-    checkBarcodeIllegalMark,
+    checkBarcode,
     getFormattedBarcode,
     convertToZipcode,
-    convertBarcodeToZipcode}=require('../src/main.js');
+    convertBarcodeToZipcode
+}=require('../src/main.js');
 
-describe('zipcode change to barcode',function () {
-    describe('format zipcode',function () {
-        it('should format zipcode',function () {
-            let inputZipcode='2358-29';
-            let formattedZipcode=getFormattedZipcode(inputZipcode);
-            const expected=['2','3','5','8','-','2','9'];
+describe('zipcode change to barcode', function (){
+    describe('check zipcode length', function () {
+        it('should check zipcode length with long five(5)', function () {
 
-            expect(formattedZipcode).toEqual(expected);
+            expect(checkZipcode('12345')).toBeTruthy();
+        });
+        it('should check zipcode length with long nine(9)', function () {
+
+            expect(checkZipcode('453798341')).toBeTruthy();
+        });
+        it('should check zipcode length with long ten(10)', function () {
+
+            expect(checkZipcode('45379-8341')).toBeTruthy();
+        });
+        it('should check zipcode length with long four(4)', function () {
+
+            expect(checkZipcode('4537')).toBeFalsy();
+        });
+        it('should check zipcode length with long six(6)', function () {
+
+            expect(checkZipcode('453798')).toBeFalsy();
+
+        });
+        it('should check zipcode length with long eight(8)', function () {
+
+            expect(checkZipcode('45379834')).toBeFalsy();
+
+        });
+        it('should check zipcode length with long eleven(11)', function () {
+
+            expect(checkZipcode('45379-83412')).toBeFalsy();
+
+        });
+    });
+
+    describe('check legal mark count', function () {
+        it('should check legal mark count with 1', function () {
+
+            expect(checkZipcode('45365-9834')).toBeTruthy();
+        });
+        it('should check legal mark count with 0', function () {
+
+            expect(checkZipcode('45379834')).toBeFalsy();
+        });
+        it('should check legal mark count with 2', function () {
+
+            expect(checkZipcode('453-79-834')).toBeFalsy();
         })
     });
 
-    describe('check zipcode length',function () {
-        it('should check zipcode length with long five(5)',function () {
-            let formattedZipcode=['4','6','3','7','5'];
-            let zipcodeLength=checkZipcodeLength(formattedZipcode);
-            const expected=true;
+    describe('check legal mark position', function () {
+        it('should check legal mark position with 6', function () {
 
-            expect(zipcodeLength).toEqual(expected);
+            expect(checkZipcode('45379-8346')).toBeTruthy();
         });
-        it('should check zipcode length with long nine(9)',function () {
-            let formattedZipcode=['4','5','3','7','9','8','3','4','1'];
-            let zipcodeLength=checkZipcodeLength(formattedZipcode);
-            const expected=true;
+        it('should check legal mark position with 5', function () {
 
-            expect(zipcodeLength).toEqual(expected);
+            expect(checkZipcode('4537-98342')).toBeFalsy();
         });
-        it('should check zipcode length with long ten(10)',function () {
-            let formattedZipcode=['4','5','3','7','9','-','8','3','4','1'];
-            let zipcodeLength=checkZipcodeLength(formattedZipcode);
-            const expected=true;
+        it('should check legal mark position with 7', function () {
 
-            expect(zipcodeLength).toEqual(expected);
-        });
-        it('should check zipcode length with long four(4)',function () {
-            let formattedZipcode=['4','5','3','7'];
-            let zipcodeLength=checkZipcodeLength(formattedZipcode);
-            const expected=false;
-
-            expect(zipcodeLength).toEqual(expected);
-        });
-        it('should check zipcode length with long six(6)',function () {
-            let formattedZipcode=['4','5','3','7','9','8'];
-            let zipcodeLength=checkZipcodeLength(formattedZipcode);
-            const expected=false;
-
-            expect(zipcodeLength).toEqual(expected);
-        });
-        it('should check zipcode length with long eight(8)',function () {
-            let formattedZipcode=['4','5','3','7','9','8','3','4'];
-            let zipcodeLength=checkZipcodeLength(formattedZipcode);
-            const expected=false;
-
-            expect(zipcodeLength).toEqual(expected);
-        });
-        it('should check zipcode length with long eleven(11)',function () {
-            let formattedZipcode=['4','5','3','7','9','-','8','3','4','1','12'];
-            let zipcodeLength=checkZipcodeLength(formattedZipcode);
-            const expected=false;
-
-            expect(zipcodeLength).toEqual(expected);
-        });
-    });
-
-    describe('check legal mark count',function () {
-        it('should check legal mark count with 1',function () {
-            let formattedZipcode=['4','5','3','-','7','9','8','3','4'];
-            let legalMarkCount=checkLegalMarkCount(formattedZipcode);
-            const expected=true;
-
-            expect(legalMarkCount).toEqual(expected);
-        });
-        it('should check legal mark count with 0',function () {
-            let formattedZipcode=['4','5','3','7','9','8','3','4'];
-            let legalMarkCount=checkLegalMarkCount(formattedZipcode);
-            const expected=false;
-
-            expect(legalMarkCount).toEqual(expected);
-        });
-        it('should check legal mark count with 2',function () {
-            let formattedZipcode=['4','5','3','-','7','9','-','8','3','4'];
-            let legalMarkCount=checkLegalMarkCount(formattedZipcode);
-            const expected=false;
-
-            expect(legalMarkCount).toEqual(expected);
+            expect(checkZipcode('453790-834')).toBeFalsy();
         })
     });
 
-    describe('check legal mark position',function () {
-        it('should check legal mark position with 6',function () {
-            let formattedZipcode=['4','5','3','7','9','-','8','3','4'];
-            let legalMarkPosition=checkLegalMarkPosition(formattedZipcode);
-            const expected=true;
+    describe('check contain illegal mark', function () {
+        it('should check legal mark with "-"', function () {
 
-            expect(legalMarkPosition).toEqual(expected);
+            expect(checkZipcode('45455-2373')).toBeTruthy();
         });
-        it('should check legal mark position with 5',function () {
-            let formattedZipcode=['4','5','3','7','-','9','8','3','4'];
-            let legalMarkPosition=checkLegalMarkPosition(formattedZipcode);
-            const expected=false;
+        it('should check illegal mark with "#"', function () {
 
-            expect(legalMarkPosition).toEqual(expected);
+            expect(checkZipcode('74857#9989')).toBeFalsy();
         });
-        it('should check legal mark position with 7',function () {
-            let formattedZipcode=['4','5','3','7','9','0','-','8','3','4'];
-            let legalMarkPosition=checkLegalMarkPosition(formattedZipcode);
-            const expected=false;
+        it('should check illegal mark with "a-z/A-Z" long 5', function () {
 
-            expect(legalMarkPosition).toEqual(expected);
-        })
+            expect(checkZipcode('7b29a-6748')).toBeFalsy();
+        });
     });
 
-    describe('check contain illegal mark',function () {
-        it('should check legal mark with "-"',function () {
-            let inputZipcode='45-273';
-            let exceptIllegalMark=checkIllegalMark(inputZipcode);
-            const expected=true;
+    describe('format zipcode', function () {
+        it('should format zipcode with long 5', function () {
 
-            expect(exceptIllegalMark).toEqual(expected);
+            expect(getFormattedZipcode('23529')).toEqual([2,3,5,2,9]);
         });
-        it('should check illegal mark with "#"',function () {
-            let inputZipcode='74857#99';
-            let exceptIllegalMark=checkIllegalMark(inputZipcode);
-            const expected=false;
+        it('should format zipcode with long 9', function () {
 
-            expect(exceptIllegalMark).toEqual(expected);
+            expect(getFormattedZipcode('235297835')).toEqual([2,3,5,2,9,7,8,3,5]);
         });
-        it('should check illegal mark with "@"',function () {
-            let inputZipcode='64729@98';
-            let exceptIllegalMark=checkIllegalMark(inputZipcode);
-            const expected=false;
+        it('should format zipcode with long 10', function () {
 
-            expect(exceptIllegalMark).toEqual(expected);
+            expect(getFormattedZipcode('23529-7835')).toEqual([2,3,5,2,9,7,8,3,5]);
         });
-        it('should check illegal mark with "a-z/A-Z" long 5',function () {
-            let inputZipcode='7b29a';
-            let exceptIllegalMark=checkIllegalMark(inputZipcode);
-            const expected=false;
-
-            expect(exceptIllegalMark).toEqual(expected);
-        });
-        it('should check illegal mark with "a-z/A-Z" long 9',function () {
-            let inputZipcode='64729d9K8';
-            let exceptIllegalMark=checkIllegalMark(inputZipcode);
-            const expected=false;
-
-            expect(exceptIllegalMark).toEqual(expected);
-        })
     });
 
-    describe('convert to barcode',function () {
-        it('should convert to barcode with illegal zipcode',function () {
-            let formattedZipcode=['4','5','-','2','7','3'];
-            let barcode=convertToBarcode(formattedZipcode);
-            const expected='inputBarcode false!';
+    describe('convert to barcode', function () {
+        it('should convert to barcode with legal zipcode and long five(5)', function () {
+            let formattedZipcode = [2,3,5,2,9];
+            let barcode = convertToBarcode(formattedZipcode);
+            const expected = '|::|:|::||::|:|:::|:||:|::|:|::|';
 
             expect(barcode).toEqual(expected);
         });
-        it('should convert to barcode with legal zipcode and long five(5)',function () {
-            let formattedZipcode=['4','5','2','7','3'];
-            let barcode=convertToBarcode(formattedZipcode);
-            const expected='|:|::|:|:|:::|:||:::|::||:|:|::|';
-
-            expect(barcode).toEqual(expected);
-        });
-        it('should convert to barcode with legal zipcode and long five(9)',function () {
-            let formattedZipcode=[ '0', '3', '4', '5', '2', '7', '3', '3', '2' ];
-            let barcode=convertToBarcode(formattedZipcode);
-            const expected='|||:::::||::|::|:|:|:::|:||:::|::||:::||:::|:|:::|||';
-
-            expect(barcode).toEqual(expected);
-        });
-        it('should convert to barcode with legal zipcode and long five(10)',function () {
-            let formattedZipcode=[ '3', '7', '4', '9', '1', '-', '8', '2', '7', '4' ];
-            let barcode=convertToBarcode(formattedZipcode);
-            const expected='|::||:|:::|:|::||:|:::::|||::|:::|:||:::|:|::|:|:|:|';
+        it('should convert to barcode with legal zipcode and long five(9)', function () {
+            let formattedZipcode = [2,3,5,2,9,7,8,3,5];
+            let barcode = convertToBarcode(formattedZipcode);
+            const expected = '|::|:|::||::|:|:::|:||:|::|:::||::|:::||::|:|::||::|';
 
             expect(barcode).toEqual(expected);
         });
     });
 
-    describe('convert zipcode to barcode',function () {
-        it('should convert zipcode to barcode with long 5 from first step to final step',function () {
-            let inputZipcode='56438';
-            let barcode=convertZipcodeToBarcode(inputZipcode);
-            const expected='|:|:|::||:::|::|::||:|::|::|::||';
+    describe('convert zipcode to barcode', function () {
+        it('should convert zipcode to barcode with long 5 from first step to final step', function () {
+            let inputZipcode = '56438';
+            let barcode = convertZipcodeToBarcode(inputZipcode);
+            const expected = '|:|:|::||:::|::|::||:|::|::|::||';
 
             expect(barcode).toEqual(expected);
         });
-        it('should convert zipcode to barcode with long 9 from first step to final step',function () {
-            let inputZipcode='763819753';
-            let barcode=convertZipcodeToBarcode(inputZipcode);
-            const expected='||:::|:||::::||:|::|::::|||:|::|:::|:|:|:::||::::|||';
+        it('should convert zipcode to barcode with long 9 from first step to final step', function () {
+            let inputZipcode = '763819753';
+            let barcode = convertZipcodeToBarcode(inputZipcode);
+            const expected = '||:::|:||::::||:|::|::::|||:|::|:::|:|:|:::||::::|||';
 
             expect(barcode).toEqual(expected);
         });
-        it('should convert zipcode to barcode with long 10 from first step to final step',function () {
-            let inputZipcode='37491-8274';
-            let barcode=convertZipcodeToBarcode(inputZipcode);
-            const expected='|::||:|:::|:|::||:|:::::|||::|:::|:||:::|:|::|:|:|:|';
+        it('should convert zipcode to barcode with long 10 from first step to final step', function () {
+            let inputZipcode = '37491-8274';
+            let barcode = convertZipcodeToBarcode(inputZipcode);
+            const expected = '|::||:|:::|:|::||:|:::::|||::|:::|:||:::|:|::|:|:|:|';
 
             expect(barcode).toEqual(expected);
         });
@@ -218,163 +147,151 @@ describe('zipcode change to barcode',function () {
 
 });
 
-describe('barcode change to zipcode',function () {
-    describe('check barcode length',function () {
-        it('should check barcode length with long 32',function () {
-            let inputBarcode='|:|::|:|:|:::|:||:::|::||:|:|::|';
-            let barcodeLength=checkBarcodeLength(inputBarcode);
-            const expected=true;
+describe('barcode change to zipcode', function () {
+    describe('check barcode length', function () {
+        it('should check barcode length with long 32', function () {
+            let inputBarcode = '|:|::|:|:|:::|:||:::|::||:|:|::|';
+            let barcodeLength = checkBarcode(inputBarcode);
 
-            expect(barcodeLength).toEqual(expected);
+            expect(barcodeLength).toBeTruthy();
         });
-        it('should check barcode length with long 52',function () {
-            let inputBarcode='|:|::|:|:|:::|:||:::|::||:|:|::::||:|:|::::||:|:|::|';
-            let barcodeLength=checkBarcodeLength(inputBarcode);
-            const expected=true;
+        it('should check barcode length with long 52', function () {
+            let inputBarcode = '|:|::|:|:|:::|:||:::|::||:|:|::::||:|:|::::||:|:|::|';
+            let barcodeLength = checkBarcode(inputBarcode);
 
-            expect(barcodeLength).toEqual(expected);
+            expect(barcodeLength).toBeTruthy();
         });
-        it('should check barcode length with long 31',function () {
-            let inputBarcode='|:|::|:|:|:::|:||::|::||:|:|::|';
-            let barcodeLength=checkBarcodeLength(inputBarcode);
-            const expected=false;
+        it('should check barcode length with long 31', function () {
+            let inputBarcode = '|:|::|:|:|:::|:||::|::||:|:|::|';
+            let barcodeLength = checkBarcode(inputBarcode);
 
-            expect(barcodeLength).toEqual(expected);
+            expect(barcodeLength).toBeFalsy();
         });
-        it('should check barcode length with long 33',function () {
-            let inputBarcode='|:|::|:|:|:::|:||:::|::||:|:|::|:';
-            let barcodeLength=checkBarcodeLength(inputBarcode);
-            const expected=false;
+        it('should check barcode length with long 33', function () {
+            let inputBarcode = '|:|::|:|:|:::|:||:::|::||:|:|::|:';
+            let barcodeLength = checkBarcode(inputBarcode);
 
-            expect(barcodeLength).toEqual(expected);
+            expect(barcodeLength).toBeFalsy();
         });
-        it('should check barcode length with long 51',function () {
-            let inputBarcode='|:|::|:|:|:::|:||:::|::||:|:|::::||:|:|::::||:|:|:|';
-            let barcodeLength=checkBarcodeLength(inputBarcode);
-            const expected=false;
+        it('should check barcode length with long 51', function () {
+            let inputBarcode = '|:|::|:|:|:::|:||:::|::||:|:|::::||:|:|::::||:|:|:|';
+            let barcodeLength = checkBarcode(inputBarcode);
 
-            expect(barcodeLength).toEqual(expected);
+            expect(barcodeLength).toBeFalsy();
         });
-        it('should check barcode length with long 53',function () {
-            let inputBarcode='|:|::|:|:|:::|:||:::|::||:|:|::::||:|:|::::||:|:|:|:|';
-            let barcodeLength=checkBarcodeLength(inputBarcode);
-            const expected=false;
+        it('should check barcode length with long 53', function () {
+            let inputBarcode = '|:|::|:|:|:::|:||:::|::||:|:|::::||:|:|::::||:|:|:|:|';
+            let barcodeLength = checkBarcode(inputBarcode);
 
-            expect(barcodeLength).toEqual(expected);
+            expect(barcodeLength).toBeFalsy();
         });
     });
 
-    describe('check frame',function () {
-        it('should check frame expected true',function () {
-            let inputBarcode='|:|::|:|:|:::|:||:::|::||:|:|::|';
-            let frame=checkFrame(inputBarcode);
-            const expected=true;
+    describe('check frame', function () {
+        it('should check frame expected true', function () {
+            let inputBarcode = '|:|::|:|:|:::|:||:::|::||:|:|::|';
+            let frame = checkBarcode(inputBarcode);
 
-            expect(frame).toEqual(expected);
+            expect(frame).toBeTruthy();
         });
-        it('should check frame with long 32',function () {
-            let inputBarcode='::::||:||::::||:|::|::|::||::|:|';
-            let frame=checkFrame(inputBarcode);
-            const expected=false;
+        it('should check frame with long 32', function () {
+            let inputBarcode = '::::||:||::::||:|::|::|::||::|:|';
+            let frame = checkBarcode(inputBarcode);
 
-            expect(frame).toEqual(expected);
+            expect(frame).toBeFalsy();
         });
-        it('should check frame with long 52',function () {
-            let inputBarcode='|:::||:||::::||:|::|::|::|:::||:|:|:::|:|:||:::|::|:';
-            let frame=checkFrame(inputBarcode);
-            const expected=false;
+        it('should check frame with long 52', function () {
+            let inputBarcode = '|:::||:||::::||:|::|::|::|:::||:|:|:::|:|:||:::|::|:';
+            let frame = checkBarcode(inputBarcode);
 
-            expect(frame).toEqual(expected);
+            expect(frame).toBeFalsy();
         });
 
     });
 
-    describe('check barcode illegal mark',function () {
-        it('should check illegal mark expected true',function () {
-            let inputBarcode='|:|::|:|:|:::|:||:::|::||:|:|::|';
-            let exceptIllegalMark=checkBarcodeIllegalMark(inputBarcode);
-            const expected=true;
+    describe('check barcode illegal mark', function () {
+        it('should check illegal mark expected true', function () {
+            let inputBarcode = '|:|::|:|:|:::|:||:::|::||:|:|::|';
+            let exceptIllegalMark = checkBarcode(inputBarcode);
 
-            expect(exceptIllegalMark).toEqual(expected);
+            expect(exceptIllegalMark).toBeTruthy();
         });
-        it('should check illegal mark with other letters long 32',function () {
-            let inputBarcode='::::||:||::::||:|2:|:a|::||::|:|';
-            let exceptIllegalMark=checkBarcodeIllegalMark(inputBarcode);
-            const expected=false;
+        it('should check illegal mark with other letters long 32', function () {
+            let inputBarcode = '::::||:||::::||:|2:|:a|::||::|:|';
+            let exceptIllegalMark = checkBarcode(inputBarcode);
 
-            expect(exceptIllegalMark).toEqual(expected);
+            expect(exceptIllegalMark).toBeFalsy();
         });
-        it('should check illegal mark with other letters long 52',function () {
-            let inputBarcode='|:::||:||::#:||:|::|::|::*:::||:|:2:::|:|:||:::|::|:';
-            let exceptIllegalMark=checkBarcodeIllegalMark(inputBarcode);
-            const expected=false;
+        it('should check illegal mark with other letters long 52', function () {
+            let inputBarcode = '|:::||:||::#:||:|::|::|::*:::||:|:2:::|:|:||:::|::|:';
+            let exceptIllegalMark = checkBarcode(inputBarcode);
 
-            expect(exceptIllegalMark).toEqual(expected);
+            expect(exceptIllegalMark).toBeFalsy();
         });
 
     });
 
-    describe('format barcode',function () {
-        it('should get formatted barcode with long 32',function () {
-            let inputBarcode='|:::||:||::::||:|::|::|::|:::|||';
-            let formattedBarcode=getFormattedBarcode(inputBarcode);
-            const expected= [ ':::||', ':||::', '::||:', '|::|:', ':|::|', ':::||' ] ;
+    describe('format barcode', function () {
+        it('should get formatted barcode with long 32', function () {
+            let inputBarcode = '|:::||:||::::||:|::|::|::|:::|||';
+            let formattedBarcode = getFormattedBarcode(inputBarcode);
+            const expected = [':::||', ':||::', '::||:', '|::|:', ':|::|', ':::||'];
 
             expect(formattedBarcode).toEqual(expected);
         });
-        it('should get formatted barcode with long 52',function () {
-            let inputBarcode='|:::||:||::::||:|::|::|::|:::||:|:|:::|:|:||:::|::|:';
-            let formattedBarcode=getFormattedBarcode(inputBarcode);
-            const expected=[ ':::||', ':||::', '::||:', '|::|:', ':|::|', ':::||', ':|:|:', '::|:|', ':||::', ':|::|' ];
+        it('should get formatted barcode with long 52', function () {
+            let inputBarcode = '|:::||:||::::||:|::|::|::|:::||:|:|:::|:|:||:::|::|:';
+            let formattedBarcode = getFormattedBarcode(inputBarcode);
+            const expected = [':::||', ':||::', '::||:', '|::|:', ':|::|', ':::||', ':|:|:', '::|:|', ':||::', ':|::|'];
 
             expect(formattedBarcode).toEqual(expected);
         });
     });
 
-    describe('convert to zipcode',function () {
-        it('should convert barcode to zipcode with long 32',function () {
-            let formattedBarcode=[':::||',':||::','::||:','|::|:',':|::|','|::|:'];
-            let zipcode=convertToZipcode(formattedBarcode);
-            const expected='16384';
+    describe('convert to zipcode', function () {
+        it('should convert barcode to zipcode with long 32', function () {
+            let formattedBarcode = [':::||', ':||::', '::||:', '|::|:', ':|::|', '|::|:'];
+            let zipcode = convertToZipcode(formattedBarcode);
+            const expected = '16384';
 
             expect(zipcode).toEqual(expected);
         });
-        it('should convert barcode to zipcode with long 52',function () {
-            let formattedBarcode=[':::||',':||::','::||:','|::|:',':|::|',':::||',':|:|:','::|:|',':||::',':|::|'];
-            let zipcode=convertToZipcode(formattedBarcode);
-            const expected='163841526';
+        it('should convert barcode to zipcode with long 52', function () {
+            let formattedBarcode = [':::||', ':||::', '::||:', '|::|:', ':|::|', ':::||', ':|:|:', '::|:|', ':||::', ':|::|'];
+            let zipcode = convertToZipcode(formattedBarcode);
+            const expected = '163841526';
 
             expect(zipcode).toEqual(expected);
         });
 
-        it('should get formatted barcode with illegal barcode CD',function () {
-            let formattedBarcode=[':*:||',':||::','::||:','|::|:',':|::|',':::||'];
-            let zipcode=convertToZipcode(formattedBarcode);
-            const expected=0;
+        it('should get formatted barcode with illegal barcode CD', function () {
+            let formattedBarcode = [':*:||', ':||::', '::||:', '|::|:', ':|::|', ':::||'];
+            let zipcode = convertToZipcode(formattedBarcode);
+            const expected = 0;
 
             expect(zipcode).toEqual(expected);
         });
     });
 
-    describe('convert barcode to zipcode',function () {
-        it('should convert barcode to zipcode with illegal barcode from fist step to final step',function () {
-            let inputBarcode='|:::||:||::::||:|::|::|::|:::|||';
-            let zipcode=convertBarcodeToZipcode(inputBarcode);
-            const expected= 0;
+    describe('convert barcode to zipcode', function () {
+        it('should convert barcode to zipcode with illegal barcode from fist step to final step', function () {
+            let inputBarcode = '|:::||:||::::||:|::|::|::|:::|||';
+            let zipcode = convertBarcodeToZipcode(inputBarcode);
+            const expected = 0;
 
             expect(zipcode).toEqual(expected);
         });
-        it('should convert barcode to zipcode with long 32 from fist step to final step',function () {
-            let inputBarcode='|:::||:||::::||:|::|::|::||::|:|';
-            let zipcode=convertBarcodeToZipcode(inputBarcode);
-            const expected='16384';
+        it('should convert barcode to zipcode with long 32 from fist step to final step', function () {
+            let inputBarcode = '|:::||:||::::||:|::|::|::||::|:|';
+            let zipcode = convertBarcodeToZipcode(inputBarcode);
+            const expected = '16384';
 
             expect(zipcode).toEqual(expected);
         });
-        it('should convert barcode to zipcode with long 52 from fist step to final step',function () {
-            let inputBarcode='|:::||:||::::||:|::|::|::|:::||:|:|:::|:|:||:::|::||';
-            let zipcode=convertBarcodeToZipcode(inputBarcode);
-            const expected='163841526';
+        it('should convert barcode to zipcode with long 52 from fist step to final step', function () {
+            let inputBarcode = '|:::||:||::::||:|::|::|::|:::||:|:|:::|:|:||:::|::||';
+            let zipcode = convertBarcodeToZipcode(inputBarcode);
+            const expected = '163841526';
 
             expect(zipcode).toEqual(expected);
         });
