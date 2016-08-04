@@ -2,102 +2,77 @@
  * Created by zhagnian on 16-8-2.
  */
 "use strict";
-let {checkZipCode, getZipCheckCode, barCodeItems, shiftZipCode, mainJs, checkBarCode, shiftBarCode, inspectCheckCode, removeCheckCode, jsMain}=require('../src/main.js');
+let {checkZipCode, formatCode, barCodeItems, shiftZipCode, zipCode2barCode, checkBarCode, shiftBarCode, inspectCheckCode, barCode2zipCode}=require('../src/main.js');
 
 describe('postnet.js', function () {
 
     describe('检查输入zip编码的合法性', function () {
 
 //legal code input
-        it('输入为五位合法输入', ()=> {
+        describe('检验位数的输入', function () {
+            it('输入为五位合法输入', ()=> {
+                expect(checkZipCode('12345')).toBeTruthy();
+            });
+            it('输入为十位合法输入', ()=> {
+                expect(checkZipCode('12345-4325')).toBeTruthy();
+            });
+            it('输入为九位合法输入', ()=> {
+                expect(checkZipCode('123457654')).toBeTruthy();
+            });
+            it('输入为4位输入', ()=> {
+                expect(checkZipCode('1234')).toBeFalsy();
+            });
+            it('输入为6位输入', ()=> {
+                expect(checkZipCode('123476')).toBeFalsy();
+            });
+            it('输入为8位输入', ()=> {
+                expect(checkZipCode('12347662')).toBeFalsy();
+            });
+            it('输入为11位输入', ()=> {
+                expect(checkZipCode('12347662875')).toBeFalsy();
+            });
 
-            let inputs = "23456";
-            let correctCode = checkZipCode(inputs);
-            let expected = true;
-            expect(correctCode).toEqual(expected);
-        });
-        it('输入为十位合法输入', ()=> {
 
-            let inputs = "23456-5673";
-            let correctCode = checkZipCode(inputs);
-            let legalZipCode = true;
-            expect(correctCode).toEqual(legalZipCode);
-        });
-        it('输入为九位合法输入', ()=> {
-
-            let inputs = "234565673";
-            let correctCode = checkZipCode(inputs);
-            let legalZipCode = true;
-            expect(correctCode).toEqual(legalZipCode);
         });
 
         //illegal code input
 
         it('‘－’的位置不合法', ()=> {
-
-            let inputs = "234-565673";
-            let wrongCode = checkZipCode(inputs);
-            let excepted = false;
-            expect(wrongCode).toEqual(excepted);
+            expect(checkZipCode('234-565673')).toBeFalsy();
         });
 
         it('‘－’的个数不合法', ()=> {
-
-            let inputs = "234-5-5-73";
-            let wrongCode = checkZipCode(inputs);
-            let excepted = false;
-            expect(wrongCode).toEqual(excepted);
+            expect(checkZipCode('234-5-5-73')).toBeFalsy();
         });
 
 
         it('包含其它符号的不合法输入', ()=> {
-
-            let inputs = "2346#";
-            let wrongCode = checkZipCode(inputs);
-            let excepted = false;
-            expect(wrongCode).toEqual(excepted);
-        });
-        it('输入的位数不合法', ()=> {
-
-            let inputs = "2673";
-            let wrongCode = checkZipCode(inputs);
-            let excepted = false;
-            expect(wrongCode).toEqual(excepted);
+            expect(checkZipCode('2346#')).toBeFalsy();
         });
 
         it('包含字母的不合法输入', ()=> {
-
-            let inputs = "26735-6n7a";
-            let wrongCode = checkZipCode(inputs);
-            let excepted = false;
-            expect(wrongCode).toEqual(excepted);
+            expect(checkZipCode('26735-6n7a')).toBeFalsy();
         });
+
     });
 
-    describe('给合法输入加上校验码', function () {
-        //get check  code
-        it('给五位合法输入加上校验码', ()=> {
+    describe('格式化合法的输入', function () {
+
+        it('格式化五位合法输', ()=> {
 
             let legalInputs = "23456";
-            let wholeZipCode = getZipCheckCode(legalInputs);
-            let expected = "234560";
-            expect(wholeZipCode).toEqual(expected);
+            let formattedCode = formatCode(legalInputs);
+            let expected = [2, 3, 4, 5, 6];
+            expect(formattedCode).toEqual(expected);
         });
-        it('给十位合法输入加上校验码  ', ()=> {
+        it('格式化10/9位合法输入  ', ()=> {
 
             let legalInputs = "23456-5673";
-            let wholeZipCode = getZipCheckCode(legalInputs);
-            let expected = "2345656739";
-            expect(wholeZipCode).toEqual(expected);
+            let formattedCode = formatCode(legalInputs);
+            let expected = [2, 3, 4, 5, 6, 5, 6, 7, 3];
+            expect(formattedCode).toEqual(expected);
         });
 
-        it('给九位合法输入加上校验码', ()=> {
-
-            let legalInputs = "234565673";
-            let wholeZipCode = getZipCheckCode(legalInputs);
-            let expected = "2345656739";
-            expect(wholeZipCode).toEqual(expected);
-        });
 
     });
 
@@ -107,7 +82,7 @@ describe('postnet.js', function () {
 
         it('五位输入转化成barcode', ()=> {
 
-            let wholeZipCode = "234560";
+            let wholeZipCode = [2, 3, 4, 5, 6, 0];
             let codeItems = barCodeItems();
             let barCode = shiftZipCode(wholeZipCode, codeItems);
             let expected = "|::|:|::||::|::|:|:|::||::||:::|";
@@ -116,7 +91,7 @@ describe('postnet.js', function () {
 
         it('十位输入转化成barcode', ()=> {
 
-            let wholeZipCode = "2345656739";
+            let wholeZipCode = [2, 3, 4, 5, 6, 5, 6, 7, 3, 9];
             let codeItems = barCodeItems();
             let barCode = shiftZipCode(wholeZipCode, codeItems);
             let expected = "|::|:|::||::|::|:|:|::||:::|:|::||::|:::|::||:|:|::|";
@@ -126,7 +101,7 @@ describe('postnet.js', function () {
 
         it('九位输入转化成barcode', ()=> {
 
-            let wholeZipCode = "2345656720";
+            let wholeZipCode = [2, 3, 4, 5, 6, 5, 6, 7, 2, 0];
             let codeItems = barCodeItems();
             let barCode = shiftZipCode(wholeZipCode, codeItems);
             let expected = "|::|:|::||::|::|:|:|::||:::|:|::||::|:::|::|:|||:::|";
@@ -139,7 +114,7 @@ describe('postnet.js', function () {
     describe('转换成barcode集成测试', function () {
         it('五位输入转化成barcode集成测试', ()=> {
             let inputs = "25631";
-            let barCode = mainJs(inputs);
+            let barCode = zipCode2barCode(inputs);
             let expected = "|::|:|:|:|::||::::||::::||::||:|";
             expect(barCode).toEqual(expected);
 
@@ -149,7 +124,7 @@ describe('postnet.js', function () {
 
         it('九位输入转化成barcode集成测试', ()=> {
             let inputs = "256314321";
-            let barCode = mainJs(inputs);
+            let barCode = zipCode2barCode(inputs);
             let expected = "|::|:|:|:|::||::::||::::||:|::|::||:::|:|:::||::||:|";
             expect(barCode).toEqual(expected);
 
@@ -158,8 +133,16 @@ describe('postnet.js', function () {
 
         it('十位输入转化成barcode集成测试', ()=> {
             let inputs = "25631-4322";
-            let barCode = mainJs(inputs);
+            let barCode = zipCode2barCode(inputs);
             let expected = "|::|:|:|:|::||::::||::::||:|::|::||:::|:|::|:|::|:||";
+            expect(barCode).toEqual(expected);
+
+
+        });
+        it('不合法输入转化成barcode集成测试', ()=> {
+            let inputs = "2564322";
+            let barCode = zipCode2barCode(inputs);
+            let expected = "Invalid zipcode";
             expect(barCode).toEqual(expected);
 
 
@@ -232,7 +215,7 @@ describe('postnet.js', function () {
             let inputs = '|::|:|:|:|::||::::||::::||::||:|';
             let codeItems = barCodeItems();
             let shiftedCode = shiftBarCode(inputs, codeItems);
-            let expected = '256313';
+            let expected = [2, 5, 6, 3, 1, 3];
             expect(shiftedCode).toEqual(expected);
 
         });
@@ -241,7 +224,7 @@ describe('postnet.js', function () {
             let inputs = '|::|:|:|:|::||::::||::::||:|:|:|';
             let codeItems = barCodeItems();
             let shiftedCode = shiftBarCode(inputs, codeItems);
-            let expected = '256315';
+            let expected = [2, 5, 6, 3, 1, 5];
             expect(shiftedCode).toEqual(expected);
 
         });
@@ -251,7 +234,7 @@ describe('postnet.js', function () {
             let inputs = '|::|:|:|:|::||::::||::::||:|::|::||:::|:|:::||::||:|';
             let codeItems = barCodeItems();
             let shiftedCode = shiftBarCode(inputs, codeItems);
-            let expected = '2563143213';
+            let expected = [2, 5, 6, 3, 1, 4, 3, 2, 1, 3];
             expect(shiftedCode).toEqual(expected);
 
         });
@@ -260,14 +243,14 @@ describe('postnet.js', function () {
             let inputs = '|::|:|:|:|::||::::||::::||:|::|::||:::|:|:::||:||::|';
             let codeItems = barCodeItems();
             let shiftedCode = shiftBarCode(inputs, codeItems);
-            let expected = '2563143216';
+            let expected = [2, 5, 6, 3, 1, 4, 3, 2, 1, 6];
             expect(shiftedCode).toEqual(expected);
         });
     });
 
     describe('检查校验码是否正确', function () {
         it('校验码正确的32位输入', ()=> {
-            let inputs = '256313';
+            let inputs = [2, 5, 6, 3, 1, 3];
             let checkedCode = inspectCheckCode(inputs);
             let expected = true;
             expect(checkedCode).toEqual(expected);
@@ -275,7 +258,7 @@ describe('postnet.js', function () {
         });
 
         it('校验码不正确的32位输入', ()=> {
-            let inputs = '256315';
+            let inputs = [2, 5, 6, 3, 1, 5];
             let checkedCode = inspectCheckCode(inputs);
             let expected = false;
             expect(checkedCode).toEqual(expected);
@@ -284,7 +267,7 @@ describe('postnet.js', function () {
 
 
         it('校验码正确的52位输入', ()=> {
-            let inputs = '2563143213';
+            let inputs = [2, 5, 6, 3, 1, 4, 3, 2, 1, 3];
             let checkedCode = inspectCheckCode(inputs);
             let expected = true;
             expect(checkedCode).toEqual(expected);
@@ -292,33 +275,13 @@ describe('postnet.js', function () {
         });
 
         it('校验码不正确的52位输入', ()=> {
-            let inputs = '2563143216';
+            let inputs = [2, 5, 6, 3, 1, 4, 3, 2, 1, 6];
             let checkedCode = inspectCheckCode(inputs);
             let expected = false;
             expect(checkedCode).toEqual(expected);
         });
     });
 
-    describe('移除检验码', function () {
-
-        it('32位移除检验码', ()=> {
-            let inputs = '256313';
-            let removedCode = removeCheckCode(inputs);
-            let expected = '25631';
-            expect(removedCode).toEqual(expected);
-
-        });
-
-
-        it('52位移除检验码', ()=> {
-            let inputs = '2563143213';
-            let removedCode = removeCheckCode(inputs);
-            let expected = '256314321';
-            expect(removedCode).toEqual(expected);
-
-        });
-
-    });
 
 //integration test
 
@@ -326,14 +289,21 @@ describe('postnet.js', function () {
 
         it('32位输入转化成zipcode集成测试', ()=> {
             let inputs = "|::|:|:|:|::||::::||::::||::||:|";
-            let zipCode = jsMain(inputs);
+            let zipCode = barCode2zipCode(inputs);
             let expected = "25631";
             expect(zipCode).toEqual(expected);
         });
         it('52位输入转化成zipcode集成测试', ()=> {
             let inputs = "|::|:|:|:|::||::::||::::||:|::|::||:::|:|:::||::||:|";
-            let zipCode = jsMain(inputs);
+            let zipCode = barCode2zipCode(inputs);
             let expected = "256314321";
+            expect(zipCode).toEqual(expected);
+        });
+
+        it('不合法输入转化成zipcode集成测试', ()=> {
+            let inputs = ":::|:|:|:|::||::::||::::||:|::|::||:::|:|:::||::||:|";
+            let zipCode = barCode2zipCode(inputs);
+            let expected = "Invalid barcode";
             expect(zipCode).toEqual(expected);
         });
 
