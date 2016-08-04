@@ -1,104 +1,62 @@
 'use strict';
 let {
-    checkZipcode, addCD, exchangeZipcode, zipcodeToBarcode,
-    checkBarcode, exchangeBarcode, checkCD, getZipcode, barcodeToZipcode
+    checkZipcode,
+    addCD,
+    exchangeZipcode,
+    zipcodeToBarcode,
+    checkBarcode,
+    exchangeBarcode,
+    checkCD,
+    getZipcode,
+    barcodeToZipcode
 }=require('../src/postnet.js');
 
 describe('检查 zip code 的合法性', ()=> {
     describe('检查 zip code 位数的合法性', ()=> {
         it("检验4位zip code 的合法性", ()=> {
-            let inputZip = '2435';
-            let checkedZip = checkZipcode(inputZip);
-            let expected = false;
-            expect(checkedZip).toEqual(expected);
+            expect(checkZipcode('2435')).toBeFalsy();
         });
-
         it("检验5位zip code 的合法性", ()=> {
-            let inputZip = '24357';
-            let checkedZip = checkZipcode(inputZip);
-            let expected = true;
-            expect(checkedZip).toEqual(expected);
+            expect(checkZipcode('12345')).toBeTruthy();
         });
-
         it("检验6位zip code 的合法性", ()=> {
-            let inputZip = '243577';
-            let checkedZip = checkZipcode(inputZip);
-            let expected = false;
-            expect(checkedZip).toEqual(expected);
+            expect(checkZipcode('243577')).toBeFalsy();
         });
-
         it("检验8位zip code 的合法性", ()=> {
-            let inputZip = '24357684';
-            let checkedZip = checkZipcode(inputZip);
-            let expected = false;
-            expect(checkedZip).toEqual(expected);
+            expect(checkZipcode('24357684')).toBeFalsy();
         });
-
         it("检验10位zip code 的合法性", ()=> {
-            let inputZip = '2435768433';
-            let checkedZip = checkZipcode(inputZip);
-            let expected = false;
-            expect(checkedZip).toEqual(expected);
+            expect(checkZipcode('2435768433')).toBeFalsy();
         });
-
         it("检验11位zip code 的合法性", ()=> {
-            let inputZip = '24357684335';
-            let checkedZip = checkZipcode(inputZip);
-            let expected = false;
-            expect(checkedZip).toEqual(expected);
+            expect(checkZipcode('24357684335')).toBeFalsy();
         });
     });
 
     describe('检验 zip code 里含有其他字符或字母', ()=> {
         it("zip code 包含字母", ()=> {
-            let inputZip = '24a35';
-            let checkedZip = checkZipcode(inputZip);
-            let expected = false;
-            expect(checkedZip).toEqual(expected);
+            expect(checkZipcode('24a35')).toBeFalsy();
         });
-
         it("zip code 包含其他字符", ()=> {
-            let inputZip = '24357#427';
-            let checkedZip = checkZipcode(inputZip);
-            let expected = false;
-            expect(checkedZip).toEqual(expected);
+            expect(checkZipcode('24357#427')).toBeFalsy();
         });
     });
 
     describe('检验 zip code 里' - '的位置', ()=> {
         it("'-'在第六位,共十位", ()=> {
-            let inputZip = '12345-7890';
-            let checkedZip = checkZipcode(inputZip);
-            let expected = true;
-            expect(checkedZip).toEqual(expected);
+            expect(checkZipcode('12345-7890')).toBeTruthy();
         });
-
         it("'-'在第六位,共九位", ()=> {
-            let inputZip = '12345-789';
-            let checkedZip = checkZipcode(inputZip);
-            let expected = false;
-            expect(checkedZip).toEqual(expected);
+            expect(checkZipcode('12345-789')).toBeFalsy();
         });
-
         it("'-'不在第六位,共十位", ()=> {
-            let inputZip = '123456-789';
-            let checkedZip = checkZipcode(inputZip);
-            let expected = false;
-            expect(checkedZip).toEqual(expected);
+            expect(checkZipcode('123456-789')).toBeFalsy();
         });
-
         it("'-'不在第六位,共九位", ()=> {
-            let inputZip = '1234-6789';
-            let checkedZip = checkZipcode(inputZip);
-            let expected = false;
-            expect(checkedZip).toEqual(expected);
+            expect(checkZipcode('1234-6789')).toBeFalsy();
         });
-
         it("'-'不在第六位,共五位", ()=> {
-            let inputZip = '6-789';
-            let checkedZip = checkZipcode(inputZip);
-            let expected = false;
-            expect(checkedZip).toEqual(expected);
+            expect(checkZipcode('6-789')).toBeFalsy();
         });
     });
 });
@@ -188,52 +146,25 @@ describe('zip code to bar code', ()=> {
 
 describe('检验bar code 的合法性', ()=> {
     it("检验 frame 是否为 ‘|’ ", ()=> {
-        let inputBar = '|:::||::|:|::||::|:';
-        let checkedBarcode = checkBarcode(inputBar);
-        let expected = false;
-        expect(checkedBarcode).toEqual(expected);
+        expect(checkBarcode('|:::||::|:|::||::|:')).toBeFalsy();
     });
-
     it("检验是否存在其他符号", ()=> {
-        let inputBar = '|:::|/::|;|::||::l::|:|:|::1:|:|';
-        let checkedBarcode = checkBarcode(inputBar);
-        let expected = false;
-        expect(checkedBarcode).toEqual(expected);
+        expect(checkBarcode('|:::|/::|;|::||::l::|:|:|::1:|:|')).toBeFalsy();
     });
-
     it("检验位数是否正确（只能为32位或52位）", ()=> {
-        let inputBar = '|:::||::|:|::||';
-        let checkedBarcode = checkBarcode(inputBar);
-        let expected = false;
-        expect(checkedBarcode).toEqual(expected);
+        expect(checkBarcode('|:::||::|:|::||')).toBeFalsy();
     });
-
     it("检验条码正确,但位数错误", ()=> {
-        let inputBar = '|:::||::|:||';
-        let checkedBarcode = checkBarcode(inputBar);
-        let expected = false;
-        expect(checkedBarcode).toEqual(expected);
+        expect(checkBarcode('|:::||::|:||')).toBeFalsy();
     });
-
     it("检验条码是: 错误", ()=> {
-        let inputBar = '|:|:||::|:||';
-        let checkedBarcode = checkBarcode(inputBar);
-        let expected = false;
-        expect(checkedBarcode).toEqual(expected);
+        expect(checkBarcode('|:|:||::|:||')).toBeFalsy();
     });
-
     it("正确的 bar code (5)", ()=> {
-        let inputBar = '|:::||::|:|::||::|::|:|:|::|:|:|';
-        let checkedBarcode = checkBarcode(inputBar);
-        let expected = true;
-        expect(checkedBarcode).toEqual(expected);
+        expect(checkBarcode('|:::||::|:|::||::|::|:|:|::|:|:|')).toBeTruthy();
     });
-
     it("正确的 bar code (9)", ()=> {
-        let inputBar = '|:::||::|:|::||::|::|:||:::::||::|:|::||::|::|:|::||';
-        let checkedBarcode = checkBarcode(inputBar);
-        let expected = true;
-        expect(checkedBarcode).toEqual(expected);
+        expect(checkBarcode('|:::||::|:|::||::|::|:||:::::||::|:|::||::|::|:|::||')).toBeTruthy();
     });
 });
 
@@ -255,24 +186,13 @@ describe('exchange bar code', ()=> {
 
 describe('check CD', ()=> {
     it("校验码错误", ()=> {
-        let exchangedBarcode = '123457';
-        let checkedCD = checkCD(exchangedBarcode);
-        let expected = false;
-        expect(checkedCD).toEqual(expected);
+        expect(checkCD('123457')).toBeFalsy();
     });
-
     it("校验码正确", ()=> {
-        let exchangedBarcode = '123455';
-        let checkedCD = checkCD(exchangedBarcode);
-        let expected = true;
-        expect(checkedCD).toEqual(expected);
+        expect(checkCD('123455')).toBeTruthy();
     });
-
     it("校验码为0", ()=> {
-        let exchangedBarcode = '1234622550';
-        let checkedCD = checkCD(exchangedBarcode);
-        let expected = true;
-        expect(checkedCD).toEqual(expected);
+        expect(checkCD('1234622550')).toBeTruthy();
     });
 });
 
