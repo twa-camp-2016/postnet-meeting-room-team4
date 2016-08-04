@@ -222,8 +222,15 @@ describe('检验bar code 的合法性', ()=> {
         expect(checkedBarcode).toEqual(expected);
     });
 
-    it("正确的 bar code", ()=> {
+    it("正确的 bar code (5)", ()=> {
         let inputBar = '|:::||::|:|::||::|::|:|:|::|:|:|';
+        let checkedBarcode = checkBarcode(inputBar);
+        let expected = true;
+        expect(checkedBarcode).toEqual(expected);
+    });
+
+    it("正确的 bar code (9)", ()=> {
+        let inputBar = '|:::||::|:|::||::|::|:||:::::||::|:|::||::|::|:|::||';
         let checkedBarcode = checkBarcode(inputBar);
         let expected = true;
         expect(checkedBarcode).toEqual(expected);

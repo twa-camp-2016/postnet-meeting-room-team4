@@ -90,10 +90,8 @@ function exchangeBarcode(inputBar) {
 }
 
 function checkCD(exchangedBarcode) {
-    let sum = _(exchangedBarcode).split('').slice(0, exchangedBarcode.length - 1).map(x=> _.parseInt(x)).sum();
-    let lastElement = _(exchangedBarcode).split('').last();
-
-    return (sum + _.parseInt(lastElement)) % 10 === 0;
+    let sum = _(exchangedBarcode).split('').map(x=> _.parseInt(x)).sum();
+    return sum%10 === 0;
 }
 
 function getZipcode(exchangedBarcode) {
