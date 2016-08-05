@@ -8,9 +8,8 @@ function checkZipCode(inputs) {
     if (finalCode.charAt(5) === '-') {
         finalCode = inputs.substring(0, 5) + inputs.substring(6);
     }
-    return [5,9].includes(finalCode.length)  && containOnlyFigures(finalCode);
+    return [5, 9].includes(finalCode.length) && containOnlyFigures(finalCode);
 }
-
 function formatCode(inputs) {
     return [...inputs].filter(x=>x !== '-').map(x=>parseInt(x));
 }
@@ -29,19 +28,18 @@ function barCodeItems() {
         {no: 7, barcode: '|:::|'},
         {no: 8, barcode: '|::|:'},
         {no: 9, barcode: '|:|::'}
-    ];}
+    ];
+}
 function shiftZipCode(formattedCode, codeItems) {
     let result = ['|'];
     let items = _.map(formattedCode, x=>codeItems[x].barcode).join('');
     result.push(items);
     result.push('|');
-    let barCode = result.join('');
-    return barCode;
+    return result.join('');
 }
 function chunkCode(inputs) {
     let codeArray = _.split(inputs, (''));
-    console.log(codeArray);
-    _.pullAt(codeArray, 0, inputs.length - 1)
+    _.pullAt(codeArray, 0, inputs.length - 1);
     return _(codeArray).chunk(5)
         .map(x=>x.join(''))
         .value();
@@ -50,27 +48,22 @@ function checkBarCode(inputs) {
     let rightStartAndEnd = _.startsWith(inputs, '|') && _.endsWith(inputs, '|');
     let codeArray = inputs.split('');
     _.pullAt(codeArray, 0, inputs.length - 1);
-    let a = codeArray.length;
     let result = chunkCode(inputs);
     let isCorrect = _.every(result, x=>_.filter(x, e=>e === '|').length === 2 && _.filter(x, e=>e === ':').length === 3);
-    return [6,10].includes(a/5) && a % 5 === 0 && rightStartAndEnd && isCorrect;
+    return [6, 10].includes(codeArray.length / 5) && codeArray.length % 5 === 0 && rightStartAndEnd && isCorrect;
 }
-
 function shiftBarCode(inputs, codeItems) {
     let stringArray = chunkCode(inputs);
-    let result=  _.map(stringArray, x=> {
+    return _.map(stringArray, x=> {
         let item = _.find(codeItems, y=>y.barcode === x);
         return item.no;
     });
-    return result;
 }
-
 function inspectCheckCode(shiftedCode) {
     let codeSum = _.sum(shiftedCode);
     return codeSum % 10 === 0;
 
 }
-
 function barCode2zipCode(inputs) {
     if (checkBarCode(inputs)) {
         let codeItems = barCodeItems();
@@ -78,7 +71,6 @@ function barCode2zipCode(inputs) {
         if (inspectCheckCode(shiftedCode)) {
             return shiftedCode.join('').substring(0, shiftedCode.length - 1);
         }
-
     }
     return 'Invalid barcode';
 }
@@ -88,12 +80,11 @@ function zipCode2barCode(inputs) {
         let checkCode = getZipCheckCode(formattedCode);
         formattedCode.push(checkCode);
         let codeItems = barCodeItems();
-        let result = shiftZipCode(formattedCode, codeItems);
-        return result;
+        return shiftZipCode(formattedCode, codeItems);
+
     }
     return 'Invalid zipcode';
 }
-
 module.exports = {
     checkZipCode: checkZipCode,
     formatCode: formatCode,
