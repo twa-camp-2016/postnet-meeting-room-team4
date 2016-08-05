@@ -1,4 +1,5 @@
 let _ = require('lodash');
+let allBarcode = ['||:::', ':::||', '::|:|', '::||:', ':|::|', ':|:|:', ':||::', '|:::|', '|::|:', '|:|::'];
 
 //zipcode change to barcode
 function containOnlyDigits(inputZipcode) {
@@ -10,15 +11,13 @@ function checkZipcode(inputZipcode) {
         finalZipcode = finalZipcode.substring(0, 5) + finalZipcode.substring(6, finalZipcode.length);
     }
     let isNumber = containOnlyDigits(finalZipcode);
-    let legalZipcode = isNumber && [5, 9].includes(finalZipcode.length);
-    return legalZipcode ? true : false;
+    return isNumber && [5, 9].includes(finalZipcode.length);
 }
 function getFormattedZipcode(inputZipcode) {
     return [...inputZipcode].filter(n=>n !== '-').map(x=>parseInt(x));
 }
 function convertToBarcode(formattedZipcode) {
     let legalZipcode = checkZipcode(inputZipcode);
-    let allBarcode = ['||:::', ':::||', '::|:|', '::||:', ':|::|', ':|:|:', ':||::', '|:::|', '|::|:', '|:|::'];
     if (legalZipcode) {
         let zipSum = _(formattedZipcode).sum();
         let CD = (10 - (zipSum % 10)) === 10 ? 0 : (10 - (zipSum % 10));
@@ -33,18 +32,14 @@ function convertToBarcode(formattedZipcode) {
 }
 function convertZipcodeToBarcode(inputZipcode) {
     let formattedZipcode = getFormattedZipcode(inputZipcode);
-    console.log(formattedZipcode);
-    let barcode = convertToBarcode(formattedZipcode);
-    console.log(barcode);
-    return barcode;
+    return convertToBarcode(formattedZipcode);
 }
 
 //barcode change to zipcode
 function checkBarcode(inputBarcode) {
     let illegalElement = inputBarcode.search(/[^|:]/g);
     if (illegalElement === -1) {
-        let legalBarcode = [32, 52].includes(inputBarcode.length) && _.startsWith(inputBarcode, '|') && _.endsWith(inputBarcode, '|');
-        return legalBarcode ? true : false;
+        return [32, 52].includes(inputBarcode.length) && _.startsWith(inputBarcode, '|') && _.endsWith(inputBarcode, '|');
     }
     return false;
 }
@@ -54,7 +49,6 @@ function getFormattedBarcode(inputBarcode) {
 }
 function convertToZipcode(formattedBarcode) {
     let legalBarcode = checkBarcode(inputBarcode);
-    let allBarcode = ['||:::', ':::||', '::|:|', '::||:', ':|::|', ':|:|:', ':||::', '|:::|', '|::|:', '|:|::'];
     if (legalBarcode) {
         let zipcode = _(formattedBarcode).map(element=> {
             return _.indexOf(allBarcode, element);
