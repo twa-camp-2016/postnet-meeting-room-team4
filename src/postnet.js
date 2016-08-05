@@ -30,7 +30,7 @@ function exchangeZipcode(addedCDCode) {
 }
 
 function zipcodeToBarcode(inputZip) {
-    return checkZipcode(inputZip) === true ? exchangeZipcode(addCD(inputZip)) : 'error!!!';
+    return checkZipcode(inputZip) ? exchangeZipcode(addCD(inputZip)) : 'error!!!';
 }
 
 function checkBarcode(inputBar) {
@@ -40,7 +40,7 @@ function checkBarcode(inputBar) {
 
     if (_.head(barArray) !== '|' && _.last(barArray) !== '|') return false;
     if (symbolCount !== 0) return false;
-    if (barArray.length !== 32 && barArray.length !== 52) return false;
+    if (![32, 52].includes(barArray.length)) return false;
     return _.every(dividedCode, element=> _.filter(element, x=> x === '|').length === 2 && _.filter(element, x=> x === ':').length === 3);
 }
 
@@ -61,12 +61,9 @@ function getZipcode(exchangedBarcode) {
 }
 
 function barcodeToZipcode(inputBar) {
-    let checkedBar = checkBarcode(inputBar);
-    if (checkedBar === true) {
+    if (checkBarcode(inputBar)) {
         let exchangedBarcode = exchangeBarcode(inputBar);
-        let checkedCD = checkCD(exchangedBarcode);
-
-        return checkedCD === true ? getZipcode(exchangedBarcode) : 'error!!!';
+        return checkCD(exchangedBarcode) ? getZipcode(exchangedBarcode) : 'error!!!';
     }
     return 'error!!!';
 }
