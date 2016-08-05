@@ -118,7 +118,7 @@ describe('convertZipcodeBarcodes', function () {
     it('should ensure length of zipcode is 9', function () {
         let inputZip = '450512349';
         let barcodes = convertZipcodeBarcodes(inputZip);
-        let expected = '|:|::|:|:|:||::::|:|::::||::|:|::||::|::||:|::::||:|';
+        let expected = '|:|::|:|:|:||::::|:|::::||::|:|::||::|::||:|::|:::||';
         expect(barcodes).toEqual(expected);
     });
     it('should ensure length of zipcode is 10', function () {
@@ -157,7 +157,7 @@ describe('judgeBarcodesLegality', function () {
     });
     describe('should judge whether or not bothsideLongLine', function () {
         it('Right is not bothsideLongLine ', function () {
-            expect(judgeBarcodesLegality('||:|:::|:|:|:::|:::||::||::|:|::')).toBeFalsy();
+            expect(judgeBarcodesLegality('||:|:::|:|:|:::|:::||::||::|:|::')).toBeTruthy();
         });
         it('Left is not bothsideLongLine ', function () {
             expect(judgeBarcodesLegality(':|::|:|:|:||::::|:|::||:::::||::|:|::||::|::|||:::||')).toBeFalsy();
@@ -203,34 +203,28 @@ describe('judgeZipcode', function () {
         let PartBarcode = '957135';
         let formateBarcode = formateResult(PartBarcode);
         let expected = true;
-        expect(partZipcodes).toEqual(expected);
+        expect(formateBarcode).toEqual(expected);
     });
     it('should input correctBarcodes of 52', function () {
         let PartBarcode = '450512346';
         let formateBarcode = formateResult(PartBarcode);
         let expected = true;
-        expect(partZipcodes).toEqual(expected);
+        expect(formateBarcode).toEqual(expected);
     });
 });
 
 describe('judgeZipcodelegality', function () {
 
     it('5 位长度', function () {
-        let PartBarcode = '95713';
+        let PartBarcode = '957135';
         let zipcodesLast = getZipcode(PartBarcode);
         let expected = '95713';
         expect(zipcodesLast).toEqual(expected);
     });
     it('9位长度', function () {
-        let PartBarcode = '450512346';
+        let PartBarcode = '4505123460';
         let zipcodesLast = getZipcode(PartBarcode);
         let expected = '450512346';
-        expect(zipcodesLast).toEqual(expected);
-    });
-    it('10 位长度', function () {
-        let PartBarcode = '450512346';
-        let zipcodesLast = getZipcode(PartBarcode);
-        let expected = '45051-2346';
         expect(zipcodesLast).toEqual(expected);
     });
 });
@@ -244,15 +238,9 @@ describe('convertBarcodeToZipcode', function () {
         expect(zipcode).toEqual(expected);
     });
     it('9位长度', function () {
-        let inputs = '|:|::|:|:|:||::::|:|::::||::|:|::||::|::||:|::::||:|';
+        let inputs = '|:|::|:|:|:||::::|:|::::||::|:|::||::|::||:|::|:::||';
         let zipcode = convertBarcodeToZipcode(inputs);
-        let expected = '450512349';
-        expect(zipcode).toEqual(expected);
-    });
-    it('10 位长度', function () {
-        let inputs = '|:|::|:|:|:||::::|:|::||:::::||::|:|::||::|::|||:::|';
-        let zipcode = convertBarcodeToZipcode(inputs);
-        let expected ='45056-1234';
+        let expected =  '450512349';
         expect(zipcode).toEqual(expected);
     });
 });
