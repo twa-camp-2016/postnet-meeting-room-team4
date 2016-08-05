@@ -15,6 +15,7 @@ const mapping = {
     9: "|:|::",
     0: "||:::"
 };
+let allBarcodes = ['||:::', ':::||', '::|:|', '::||:', ':|::|', ':|:|:', ':||::', '|:::|', '|::|:', '|:|::'];
 function judgeZipcodesIsNum(inputs) {
     return _.every(inputs, x=>'0' <= x && x <= '9');
 }
@@ -32,12 +33,12 @@ function addCheckcode(inputZip) {
     return inputZip + CD;
 }
 function matchedBarcodes(updateZipcodes) {
-    let partBarcode = updateZipcodes.map(a=> mapping[a]).join('');
+    let partBarcode = _(updateZipcodes).split('').map(a=> mapping[a]).join('');
     return '|' + partBarcode + '|';
 }
 function convertZipcodeBarcodes(inputZip) {
     if (judgeZipcodesLegality(inputZip)) {
-        let updateZipcodes = addCheckcode(zipcodesLegality);
+        let updateZipcodes = addCheckcode(inputZip);
         return matchedBarcodes(updateZipcodes);
     }
     return false;
@@ -45,7 +46,7 @@ function convertZipcodeBarcodes(inputZip) {
 function judgeBarcodesLegality(inputs) {
     let barcodeArray = _.split(inputs, '');
     let partBarcode = _(barcodeArray).filter(x=> x !== '|' && x !== ':').size();
-    let divBarcode = _.chain(barArray).slice(1, barArray.length - 1).chunk(5).value();
+    let divBarcode = _.chain(barcodeArray).slice(1, barcodeArray.length - 1).chunk(5).value();
     if (_.head(barcodeArray) !== '|' && _.last(barcodeArray) !== '|') return false;
     if (partBarcode !== 0) return false;
     if (barcodeArray.length !== 32 && barcodeArray.length !== 52) return false;
@@ -54,9 +55,10 @@ function judgeBarcodesLegality(inputs) {
 }
 
 function matchedZipcodes(inputs) {
-    let barArray = _.split(inputBar, '');
+    let barArray = _.split(inputs, '');
     let dividedCode = _.chain(barArray).slice(1, barArray.length - 1).chunk(5).value();
-    return _(dividedCode).map(x=> _.indexOf(allCodes, x.join(''))).join('');
+    let PartBarcode = _(dividedCode).map(x=> _.indexOf(allBarcodes, x.join(''))).join('');
+    return PartBarcode;
 }
 
 function formateResult(PartBarcode) {
@@ -68,16 +70,19 @@ function getZipcode(PartBarcode) {
     return PartBarcode.slice(0, PartBarcode.length - 1);
 }
 function convertBarcodeToZipcode(inputs) {
+    let partBarcode = matchedZipcodes(inputs);
     if (judgeBarcodesLegality(inputs)) {
-        if (formateBarcode === true) {
-            let PartBarcode = matchedZipcodes(inputs);
-            return getZipcode(PartBarcode);
+        let zipcode = partBarcode;
+        if (formateResult(partBarcode)) {
+            return getZipcode(partBarcode);
         }
     }
     return false;
 }
 
 
+let inputs = '|:|::|:|:|:||::::|:|::::||::|:|::||::|::||:|::::||:|';
+convertBarcodeToZipcode(inputs);
 module.exports = {
     judgeZipcodesLegality: judgeZipcodesLegality,
     addCheckcode: addCheckcode,
