@@ -27,15 +27,12 @@ function buildBarcodeString(barcodes) {
     return '|' + barcodes.join('') + '|';
 }
 function printBarcode(zipCode) {
-    let result = judgeZipCode(zipCode);
-    if (result === true) {
+    if (judgeZipCode(zipCode)) {
         let zipCodeWithCd = calculateCheckCode(zipCode);
         let barcodeArray = buildBarcodes(allCodes, zipCodeWithCd);
-        let barcodeString = buildBarcodeString(barcodeArray);
-        return barcodeString;
-    } else {
-        return 'invalid zipCode!';
+        return buildBarcodeString(barcodeArray);
     }
+    return 'invalid zipCode!';
 }
 module.exports = {
     judgeZipCode,
