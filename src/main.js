@@ -8,7 +8,7 @@ function checkZipCode(inputs) {
     if (finalCode.charAt(5) === '-') {
         finalCode = inputs.substring(0, 5) + inputs.substring(6);
     }
-    return (finalCode.length === 5 || finalCode.length === 9) && containOnlyFigures(finalCode);
+    return [5,9].includes(finalCode.length)  && containOnlyFigures(finalCode);
 }
 
 function formatCode(inputs) {
@@ -53,7 +53,7 @@ function checkBarCode(inputs) {
     let a = codeArray.length;
     let result = chunkCode(inputs);
     let isCorrect = _.every(result, x=>_.filter(x, e=>e === '|').length === 2 && _.filter(x, e=>e === ':').length === 3);
-    return (a / 5 === 6 || a / 5 === 10) && a % 5 === 0 && rightStartAndEnd && isCorrect;
+    return [6,10].includes(a/5) && a % 5 === 0 && rightStartAndEnd && isCorrect;
 }
 
 function shiftBarCode(inputs, codeItems) {
