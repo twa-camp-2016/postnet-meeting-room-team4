@@ -17,46 +17,41 @@ function getZipCheckCode(formattedCode) {
     let codeSum = _.sum(formattedCode);
     return _.range(0, 10).find(x=>(codeSum + x) % 10 === 0);
 }
-function barCodeItems() {
-    return [{no: 0, barcode: '||:::'},
-        {no: 1, barcode: ':::||'},
-        {no: 2, barcode: '::|:|'},
-        {no: 3, barcode: '::||:'},
-        {no: 4, barcode: ':|::|'},
-        {no: 5, barcode: ':|:|:'},
-        {no: 6, barcode: ':||::'},
-        {no: 7, barcode: '|:::|'},
-        {no: 8, barcode: '|::|:'},
-        {no: 9, barcode: '|:|::'}
-    ];
-}
-function shiftZipCode(formattedCode, codeItems) {
-    let result = ['|'];
-    let items = _.map(formattedCode, x=>codeItems[x].barcode).join('');
-    result.push(items);
-    result.push('|');
-    return result.join('');
+const item= {
+            0: '||:::',
+            1: ':::||',
+            2: '::|:|',
+            3: '::||:',
+            4: ':|::|',
+            5: ':|:|:',
+            6: ':||::',
+            7: '|:::|',
+            8: '|::|:',
+            9: '|:|::'
+        };
+
+function shiftZipCode(formattedCode) {
+    let items = _.map(formattedCode, x=>item[x]).join('');
+    return '|'+items+'|';
 }
 function chunkCode(inputs) {
-    let codeArray = _.split(inputs, (''));
-    _.pullAt(codeArray, 0, inputs.length - 1);
-    return _(codeArray).chunk(5)
+    let input=inputs.substring(1,inputs.length-1);
+   return  _(input).split((''))
+        .chunk(5)
         .map(x=>x.join(''))
         .value();
 }
 function checkBarCode(inputs) {
     let rightStartAndEnd = _.startsWith(inputs, '|') && _.endsWith(inputs, '|');
-    let codeArray = inputs.split('');
-    _.pullAt(codeArray, 0, inputs.length - 1);
+    let length=inputs.substring(1,inputs.length-1).length;
     let result = chunkCode(inputs);
     let isCorrect = _.every(result, x=>_.filter(x, e=>e === '|').length === 2 && _.filter(x, e=>e === ':').length === 3);
-    return [6, 10].includes(codeArray.length / 5) && codeArray.length % 5 === 0 && rightStartAndEnd && isCorrect;
+    return [6, 10].includes(length / 5) && length % 5 === 0 && rightStartAndEnd && isCorrect;
 }
-function shiftBarCode(inputs, codeItems) {
+function shiftBarCode(inputs) {
     let stringArray = chunkCode(inputs);
     return _.map(stringArray, x=> {
-        let item = _.find(codeItems, y=>y.barcode === x);
-        return item.no;
+        return  parseInt(_.findKey(item, y=>y===x));
     });
 }
 function inspectCheckCode(shiftedCode) {
@@ -66,8 +61,7 @@ function inspectCheckCode(shiftedCode) {
 }
 function barCode2zipCode(inputs) {
     if (checkBarCode(inputs)) {
-        let codeItems = barCodeItems();
-        let shiftedCode = shiftBarCode(inputs, codeItems);
+        let shiftedCode = shiftBarCode(inputs);
         if (inspectCheckCode(shiftedCode)) {
             return shiftedCode.join('').substring(0, shiftedCode.length - 1);
         }
@@ -79,8 +73,7 @@ function zipCode2barCode(inputs) {
         let formattedCode = formatCode(inputs);
         let checkCode = getZipCheckCode(formattedCode);
         formattedCode.push(checkCode);
-        let codeItems = barCodeItems();
-        return shiftZipCode(formattedCode, codeItems);
+        return shiftZipCode(formattedCode);
 
     }
     return 'Invalid zipcode';
@@ -89,7 +82,6 @@ module.exports = {
     checkZipCode: checkZipCode,
     formatCode: formatCode,
     getZipCheckCode: getZipCheckCode,
-    barCodeItems: barCodeItems,
     shiftZipCode: shiftZipCode,
     zipCode2barCode: zipCode2barCode,
     checkBarCode: checkBarCode,
